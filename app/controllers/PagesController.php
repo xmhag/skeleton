@@ -10,6 +10,8 @@ class PagesController
     {
         // $tasks = App::get('db')->selectAll('tasks');
 
+        // App::get('db')->insert('tasks', ['description' => 'Walk the line']);
+
         return view('index');
     }
 }

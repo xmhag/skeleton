@@ -11,20 +11,47 @@ class QueryBuilder
 
     public function selectAll($table)
     {
-        $statement = $this->pdo->prepare("select * from {$table}");
-        $statement->execute();
-        return $statement->fetchAll(PDO::FETCH_CLASS);
+        return $this->sqlSelect("select * from {$table}");
+    }
+
+    public function selectOne($table, $id)
+    {
+        return $this->sqlSelect("select * from {$table} where id={$id}");
     }
 
     public function insert($table, $parameters)
     {
         $sql = sprintf(
-            'insert into %s (%s) values (%s)',
+            'INSERT INTO %s (%s) VALUES (%s);',
             $table,
             implode(', ', array_keys($parameters)),
             ':' . implode(', :', array_keys($parameters))
         );
 
+        $this->sqlModify($sql, $parameters);
+    }
+
+    public function update ($table, $id, $parameters)
+    {
+        $setString = implode(', ', 
+            array_map(function($key){
+                return "$key = :$key";
+            }, array_keys($parameters))
+        );
+
+        $sql = sprintf('UPDATE %s SET %s WHERE id=%s;', $table, $setString, $id);
+
+        $this->sqlModify($sql, $parameters);
+    }
+
+
+    private function sqlSelect($sql) {
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute();
+        return $statement->fetchAll(PDO::FETCH_CLASS);
+    }
+
+    private function sqlModify($sql, $parameters) {
         try
         {
             $statement = $this->pdo->prepare($sql);

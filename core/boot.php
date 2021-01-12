@@ -2,6 +2,9 @@
 
 use App\Core\App;
 
+$dotenv = Dotenv\Dotenv::createImmutable($_SERVER['DOCUMENT_ROOT']);
+$dotenv->load();
+
 App::bind('config', require 'config.php');
 
 App::bind('db', new QueryBuilder (
